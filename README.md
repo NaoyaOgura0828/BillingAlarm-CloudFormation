@@ -8,11 +8,7 @@
 - Amazon Linux 2 (AWS EC2)
 - RockyLinux 8.5 (実機)
 
-<br>
-
 **`Windows`環境では`.sh`が実行出来ないので注意**
-
-<br>
 
 
 # Installation
