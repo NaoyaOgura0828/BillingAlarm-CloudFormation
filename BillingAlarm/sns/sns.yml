@@ -1,0 +1,114 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: SNS For BillingAlarm
+
+Parameters:
+  SystemName:
+    Type: String
+    AllowedPattern: '[a-zA-Z0-9-]*'
+  EnvType:
+    Description: Environment type.
+    Type: String
+    Default: dev
+    AllowedValues: [all, dev, stg, prod]
+    ConstraintDescription: must specify all, dev, stg, or prod.
+  isFifoTopic:
+    Type: String
+    AllowedValues: [true, false]
+  EndpointEmailAddress:
+    Type: String
+  EndpointPhoneNumber:
+    Type: String
+
+Mappings:
+  AzMap:
+    ap-northeast-1:
+      1st: ap-northeast-1a
+      2nd: ap-northeast-1c
+      3rd: ap-northeast-1d
+
+Conditions:
+  HasEmailAddress: !Not [!Equals [!Ref EndpointEmailAddress, ""]]
+  HasPhoneNumber: !Not [!Equals [!Ref EndpointPhoneNumber, ""]]
+
+Resources:
+  # SNSSubscription 作成
+  # CloudWatchAlarm
+  # Email
+  SNSSubscriptionCloudWatchAlarmEmail:
+    Condition: HasEmailAddress
+    Type: AWS::SNS::Subscription
+    Properties:
+      TopicArn: !Ref SNSTopicCloudWatchAlarm
+      Protocol: email
+      Endpoint: !Ref EndpointEmailAddress
+      Region: !Ref AWS::Region
+  # SMS
+  SNSSubscriptionCloudWatchAlarmSMS:
+    Condition: HasPhoneNumber
+    Type: AWS::SNS::Subscription
+    Properties:
+      TopicArn: !Ref SNSTopicCloudWatchAlarm
+      Protocol: sms
+      Endpoint: !Ref EndpointPhoneNumber
+      Region: !Ref AWS::Region
+
+  # SNSTopicPolicy 作成
+  # CloudWatchAlarm
+  SNSTopicPolicyCloudWatchAlarm:
+    Type: AWS::SNS::TopicPolicy
+    Properties:
+      Topics:
+        - !Ref SNSTopicCloudWatchAlarm
+      PolicyDocument:
+        Id: __default_policy_ID
+        Statement:
+          - Sid: __default_statement_ID
+            Effect: Allow
+            Principal:
+              AWS: '*'
+            Action:
+              - SNS:GetTopicAttributes
+              - SNS:SetTopicAttributes
+              - SNS:AddPermission
+              - SNS:RemovePermission
+              - SNS:DeleteTopic
+              - SNS:Subscribe
+              - SNS:ListSubscriptionsByTopic
+              - SNS:Publish
+              - SNS:Receive
+            Resource:
+              - !Ref SNSTopicCloudWatchAlarm
+            Condition:
+              StringEquals:
+                AWS:SourceOwner: !Sub ${AWS::AccountId}
+
+  # SNSTopic 作成
+  # CloudWatchAlarm
+  SNSTopicCloudWatchAlarm:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: !Sub
+        - ${SystemName}-${EnvType}-sns-topic-cloud-watch-alarm
+        - {SystemName: !Ref SystemName, EnvType: !Ref EnvType}
+      DisplayName: !Sub
+        - ${SystemName}-${EnvType}-sns-topic-cloud-watch-alarm
+        - {SystemName: !Ref SystemName, EnvType: !Ref EnvType}
+      FifoTopic: !Ref isFifoTopic
+      Tags:
+        - Key: Name
+          Value: !Sub
+            - ${SystemName}-${EnvType}-sns-topic-cloud-watch-alarm
+            - {SystemName: !Ref SystemName, EnvType: !Ref EnvType}
+        - Key: SystemName
+          Value: !Ref SystemName
+        - Key: EnvType
+          Value: !Ref EnvType
+
+Outputs:
+  # CloudWatchAlarm
+  SNSTopicCloudWatchAlarmArn:
+    Value: !Ref SNSTopicCloudWatchAlarm
+    Export:
+      Name: !Sub
+        - ${SystemName}-${EnvType}-sns-topic-cloud-watch-alarm-arn
+        - {SystemName: !Ref SystemName, EnvType: !Ref EnvType}

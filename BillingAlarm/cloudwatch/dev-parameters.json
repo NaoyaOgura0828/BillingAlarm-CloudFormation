@@ -1,0 +1,16 @@
+{
+    "Parameters": [
+        {
+            "ParameterKey": "SystemName",
+            "ParameterValue": "BillingAlarm"
+        },
+        {
+            "ParameterKey": "EnvType",
+            "ParameterValue": "dev"
+        },
+        {
+            "ParameterKey": "Amount",
+            "ParameterValue": "10"
+        }
+    ]
+}

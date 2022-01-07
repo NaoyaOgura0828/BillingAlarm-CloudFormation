@@ -1,0 +1,24 @@
+{
+    "Parameters": [
+        {
+            "ParameterKey": "SystemName",
+            "ParameterValue": "BillingAlarm"
+        },
+        {
+            "ParameterKey": "EnvType",
+            "ParameterValue": "dev"
+        },
+        {
+            "ParameterKey": "isFifoTopic",
+            "ParameterValue": "false"
+        },
+        {
+            "ParameterKey": "EndpointEmailAddress",
+            "ParameterValue": "dev@example.com"
+        },
+        {
+            "ParameterKey": "EndpointPhoneNumber",
+            "ParameterValue": ""
+        }
+    ]
+}

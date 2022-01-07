@@ -1,0 +1,50 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: CloudWatch For BillingAlarm
+
+Parameters:
+  SystemName:
+    Type: String
+    AllowedPattern: '[a-zA-Z0-9-]*'
+  EnvType:
+    Description: Environment type.
+    Type: String
+    Default: dev
+    AllowedValues: [all, dev, stg, prod]
+    ConstraintDescription: must specify all, dev, stg, or prod.
+  Amount:
+    Description: Setting the threshold amount.
+    Type: Number
+
+Mappings:
+  AzMap:
+    ap-northeast-1:
+      1st: ap-northeast-1a
+      2nd: ap-northeast-1c
+      3rd: ap-northeast-1d
+
+Resources:
+  # CloudWatchAlarm 作成
+  CloudWatchAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub
+        - ${SystemName}-${EnvType}-cloud-watch-alarm
+        - {SystemName: !Ref SystemName, EnvType: !Ref EnvType}
+      AlarmDescription: !Sub AWS利用料金が${Amount}ドルを超えたら通知する
+      ActionsEnabled: true
+      AlarmActions:
+        - Fn::ImportValue: !Sub
+            - ${SystemName}-${EnvType}-sns-topic-cloud-watch-alarm-arn
+            - {SystemName: !Ref SystemName, EnvType: !Ref EnvType}
+      MetricName: EstimatedCharges
+      Namespace: AWS/Billing
+      Statistic: Maximum
+      Dimensions:
+        - Name: Currency
+          Value: USD
+      Period: 21600
+      EvaluationPeriods: 1
+      DatapointsToAlarm: 1
+      Threshold: !Ref Amount
+      ComparisonOperator: GreaterThanThreshold
+      TreatMissingData: missing
