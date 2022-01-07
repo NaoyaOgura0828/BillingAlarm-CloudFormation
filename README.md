@@ -36,13 +36,15 @@ arn:aws:iam::aws:policy/AdministratorAccess
 ```Bash
 $ aws configure
 ```
-**上記を実行すると`AWS Access Key ID`等の入力を求められるので任意に入力をする。**
+上記を実行すると`AWS Access Key ID`等の入力を求められるので任意に入力をする。
 
 **ここで入力したものは`\.aws\config`に記述されるが`[default]`以外は削除して良い。**
 
 ```
 # \.aws\config
+
 [default]
+# 以下は削除する
 ```
 
 <br>
@@ -51,6 +53,7 @@ $ aws configure
 
 ```
 # \.aws\credentials
+
 [default]
 aws_access_key_id = {Access key ID}
 aws_secret_access_key = {Secret access key}
